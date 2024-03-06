@@ -32,7 +32,7 @@ function createImageData(width, height) {
     const imageData = ctx.createImageData(width, height);
     const imageDataArray = imageData.data;
 
-    const maxIterations = 100;
+    const maxIterations = parseFloat(document.getElementById('maxIterations').value);
     const escapeRadius = 2;
     const zoom = parseFloat(document.getElementById('zoom').value);
     const offsetX = parseFloat(document.getElementById('shiftX').value);
@@ -52,6 +52,12 @@ function createImageData(width, height) {
 }
 
 function calculateColor(cx, cy, maxIterations, escapeRadius, color) {
+    const iterations = calculateMandelbrot(cx, cy, maxIterations, escapeRadius);
+    const colorValue = adjustColor(iterations, maxIterations, color);
+    return colorValue;
+}
+
+function calculateMandelbrot(cx, cy, maxIterations, escapeRadius) {
     let zx = 0;
     let zy = 0;
     let i = 0;
@@ -63,13 +69,17 @@ function calculateColor(cx, cy, maxIterations, escapeRadius, color) {
         i++;
     }
 
-    if (i === maxIterations) {
+    return i;
+}
+
+function adjustColor(iterations, maxIterations, color) {
+    if (iterations === maxIterations) {
         return [0, 0, 0];
     } else {
         const colorValue = color.slice();
-        colorValue[0] *= i / maxIterations;
-        colorValue[1] *= i / maxIterations;
-        colorValue[2] *= i / maxIterations;
+        colorValue[0] *= iterations / maxIterations;
+        colorValue[1] *= iterations / maxIterations;
+        colorValue[2] *= iterations / maxIterations;
         return colorValue;
     }
 }
@@ -109,7 +119,7 @@ function handleWheel(event) {
     const zoomInput = document.getElementById('zoom');
     const currentZoom = parseFloat(zoomInput.value);
     const newZoom = currentZoom * (1 - event.deltaY * 0.001);
-    zoomInput.value = Math.max(1, Math.min(5000, newZoom));
+    zoomInput.value = Math.max(1, Math.min(100000, newZoom));
     render();
     event.preventDefault();
 }
